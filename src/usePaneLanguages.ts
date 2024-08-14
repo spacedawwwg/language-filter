@@ -1,4 +1,5 @@
 import {useCallback, useMemo} from 'react'
+import {useDocumentPane} from 'sanity/structure'
 
 import {useLanguageFilterStudioContext} from './LanguageFilterStudioContext'
 import {getSelectableLanguages, persistLanguageIds} from './useSelectedLanguageIds'
@@ -13,7 +14,22 @@ export function usePaneLanguages(): {
   toggleLanguage: (languageId: string) => void
 } {
   const {selectedLanguageIds, setSelectedLanguageIds, options} = useLanguageFilterStudioContext()
-  const {defaultLanguages = []} = options
+
+  const {documentId, documentType} = useDocumentPane()
+  // eslint-disable-next-line no-console
+  console.log('usePaneLanguages', documentId, documentType)
+
+  const defaultLanguages = useMemo(() => {
+    if (options.defaultLanguages) {
+      return Array.isArray(options.defaultLanguages)
+        ? options.defaultLanguages
+        : options.defaultLanguages({
+            documentId,
+            documentType,
+          })
+    }
+    return []
+  }, [documentId, documentType, options])
 
   const selectableLanguages = useMemo(() => getSelectableLanguages(options), [options])
 

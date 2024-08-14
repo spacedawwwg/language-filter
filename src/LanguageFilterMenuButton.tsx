@@ -18,7 +18,9 @@ import {
   useClickOutside,
 } from '@sanity/ui'
 import {type FormEvent, type MouseEventHandler, useCallback, useState} from 'react'
+import React from 'react'
 import {TextWithTone} from 'sanity'
+import {useDocumentPane} from 'sanity/structure'
 import {styled} from 'styled-components'
 
 import {useLanguageFilterStudioContext} from './LanguageFilterStudioContext'
@@ -28,15 +30,25 @@ const StyledBox = styled(Box)`
   max-height: calc(100vh - 200px);
 `
 
-export function LanguageFilterMenuButton() {
+export function LanguageFilterMenuButton(): React.JSX.Element {
   const {options} = useLanguageFilterStudioContext()
+  const {documentId, documentType} = useDocumentPane()
+  // eslint-disable-next-line no-console
+  console.log('LanguageFilterMenuButton', documentId, documentType)
+
+  const optionsDefaultLanguages = Array.isArray(options.defaultLanguages)
+    ? options.defaultLanguages
+    : options.defaultLanguages({
+        documentId,
+        documentType,
+      })
 
   const defaultLanguages = options.supportedLanguages.filter((l) =>
-    options.defaultLanguages?.includes(l.id),
+    optionsDefaultLanguages?.includes(l.id),
   )
 
   const languageOptions = options.supportedLanguages.filter(
-    (l) => !options.defaultLanguages?.includes(l.id),
+    (l) => !optionsDefaultLanguages?.includes(l.id),
   )
   const [open, setOpen] = useState(false)
   const {activeLanguages, allSelected, selectAll, selectNone, toggleLanguage} = usePaneLanguages()

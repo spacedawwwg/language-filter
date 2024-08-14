@@ -16,6 +16,10 @@ export type Language = {
 export type LanguageCallback = (
   client: SanityClient,
   selectedValue: Record<string, unknown>,
+  props: {
+    documentType: string
+    documentId: string
+  },
 ) => Promise<Language[]>
 
 export type FilterFieldFunction = (
@@ -24,9 +28,11 @@ export type FilterFieldFunction = (
   selectedLanguageIds: string[],
 ) => boolean
 
+export type DefaultLanguagesCallback = (props: unknown) => string[]
+
 export interface LanguageFilterConfig {
   supportedLanguages: Language[] | LanguageCallback
-  defaultLanguages?: string[]
+  defaultLanguages?: string[] | DefaultLanguagesCallback
   documentTypes?: string[]
   filterField?: FilterFieldFunction
   /**

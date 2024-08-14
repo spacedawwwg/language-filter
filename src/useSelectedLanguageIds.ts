@@ -32,12 +32,17 @@ export function getSelectableLanguages({
   defaultLanguages,
 }: LanguageFilterConfig): Language[] {
   return Array.isArray(supportedLanguages)
-    ? supportedLanguages.filter((lang) => !defaultLanguages?.includes(lang.id))
+    ? supportedLanguages.filter((lang) =>
+        (Array.isArray(defaultLanguages) ? defaultLanguages : [])?.includes(lang.id),
+      )
     : []
 }
 
 export function useSelectedLanguageIds(
   options: LanguageFilterConfig,
 ): [string[], (ids: string[]) => void] {
-  return useState(() => [...(options.defaultLanguages ?? []), ...getPersistedLanguageIds(options)])
+  return useState(() => [
+    ...(Array.isArray(options.defaultLanguages) ? options.defaultLanguages : []),
+    ...getPersistedLanguageIds(options),
+  ])
 }

@@ -1,4 +1,5 @@
 import {createContext, useContext, useEffect, useMemo, useState} from 'react'
+import React from 'react'
 import {type LayoutProps, useClient} from 'sanity'
 
 import {defaultFilterField} from './filterField'
@@ -9,6 +10,7 @@ import type {
   LanguageFilterConfigProcessed,
 } from './types'
 import {useSelectedLanguageIds} from './useSelectedLanguageIds'
+import {useDocumentPane} from 'sanity/structure'
 
 export interface LanguageFilterStudioContextProps {
   // eslint-disable-next-line react/require-default-props
@@ -46,23 +48,26 @@ const LanguageFilterStudioContext =
  */
 export function LanguageFilterStudioProvider(
   props: LayoutProps & LanguageFilterStudioContextProps,
-) {
+): React.JSX.Element {
   const client = useClient({apiVersion: '2023-01-01'})
   const [languages, setLanguages] = useState<Language[]>(
     Array.isArray(props.options.supportedLanguages) ? props.options.supportedLanguages : [],
   )
+
+  const {documentType, documentId} = useDocumentPane()
+
   useEffect(() => {
     let asyncLanguages: Language[] = []
 
     async function getLanguages(supportedLanguagesCallback: LanguageCallback) {
-      asyncLanguages = await supportedLanguagesCallback(client, {})
+      asyncLanguages = await supportedLanguagesCallback(client, {}, {documentType, documentId})
       setLanguages(asyncLanguages)
     }
 
     if (!Array.isArray(props.options.supportedLanguages)) {
       getLanguages(props.options.supportedLanguages)
     }
-  }, [client, props.options.supportedLanguages])
+  }, [client, documentId, documentType, props.options.supportedLanguages])
 
   const options = useMemo<Required<LanguageFilterConfigProcessed>>(() => {
     return {
@@ -87,6 +92,6 @@ export function LanguageFilterStudioProvider(
  * Retrieves plugin options and the currently selected
  * language IDs from anywhere in the Studio
  */
-export function useLanguageFilterStudioContext() {
+export function useLanguageFilterStudioContext(): LanguageFilterStudioContextValue {
   return useContext(LanguageFilterStudioContext)
 }
